@@ -1,0 +1,79 @@
+# Visual Studio / .NET específicos
+.vs/
+.vscode/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Ll]og/
+[Ll]ogs/
+
+# Archivos de usuario
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.usertasks
+*.sln.docstates
+*.dbmdl
+*.dbproj.schemaview
+
+# Archivos específicos de .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Cache y paquetes
+.nuget/
+**/packages/*
+*.nupkg
+*.snupkg
+*.[Cc]ache
+!*.[Cc]ache/
+
+# Archivos de IDE y herramientas
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+_TeamCity*
+*.dotCover
+.JustCode
+.idea/
+*.sln.iml
+.cr/
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Archivos de configuración local y secretos
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.json
+!appsettings.json
+*.pfx
+*.publishsettings
+PublishProfiles/
+Properties/launchSettings.json
+
+# Archivos de desarrollo de aplicaciones
+*.mdf
+*.ldf
+*.ndf
+node_modules/
+bower_components/
+
+# Archivos generados por herramientas
+.sass-cache/
+connect.lock
+StyleCopReport.xml
+coverage/
+**/wwwroot/lib/
+**/ClientApp/dist/
+**/ClientApp/node_modules/
