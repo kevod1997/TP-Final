@@ -1,6 +1,8 @@
 using FluentValidation;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ProductService.API;
+using ProductService.Application.Behaviors;
 using ProductService.Application.Commands;
 using ProductService.Application.Mappings;
 using ProductService.Domain.Repositories;
@@ -24,7 +26,7 @@ builder.Host.UseSerilog();
 // Agregar servicios al contenedor
 builder.Services.AddControllers();
 
-// Configurar FluentValidation usando solo lo que tenemos disponible
+// Configurar FluentValidation
 builder.Services.AddValidatorsFromAssemblyContaining<CreateProductCommandValidator>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -43,9 +45,10 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 // Registrar AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Registrar MediatR
+// Registrar MediatR con el ValidationBehavior
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(CreateProductCommand).Assembly);
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 });
 
 var app = builder.Build();
@@ -61,11 +64,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
-// Agregar middleware de validación manual si es necesario
-app.UseExceptionHandler("/error");
+// Ya no necesitas el UseExceptionHandler si tienes tu propio middleware de excepciones
+// app.UseExceptionHandler("/error");
 
 app.MapControllers();
 

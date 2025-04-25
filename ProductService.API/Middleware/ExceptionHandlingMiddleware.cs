@@ -1,5 +1,7 @@
-﻿using System.Net;
+﻿using FluentValidation;
+using System.Net;
 using System.Text.Json;
+using TrabajoFinal.Common.SharedKernel.Models;
 
 namespace ProductService.API.Middleware
 {
@@ -31,40 +33,44 @@ namespace ProductService.API.Middleware
         {
             context.Response.ContentType = "application/json";
 
-            var response = new ErrorResponse
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = "Se produjo un error interno. Por favor, inténtelo de nuevo más tarde."
-            };
+            var statusCode = HttpStatusCode.InternalServerError;
+            var message = "Se produjo un error interno. Por favor, inténtelo de nuevo más tarde.";
+            var errors = new List<string>();
 
             // Personalizar el mensaje de error según el tipo de excepción
             if (exception is ArgumentException || exception is FormatException)
             {
-                response.StatusCode = HttpStatusCode.BadRequest;
-                response.Message = exception.Message;
+                statusCode = HttpStatusCode.BadRequest;
+                message = "Solicitud inválida";
+                errors.Add(exception.Message);
             }
             else if (exception is UnauthorizedAccessException)
             {
-                response.StatusCode = HttpStatusCode.Unauthorized;
-                response.Message = "No está autorizado para realizar esta acción.";
+                statusCode = HttpStatusCode.Unauthorized;
+                message = "No está autorizado para realizar esta acción";
             }
             else if (exception is InvalidOperationException)
             {
-                response.StatusCode = HttpStatusCode.BadRequest;
-                response.Message = exception.Message;
+                statusCode = HttpStatusCode.BadRequest;
+                message = "Operación inválida";
+                errors.Add(exception.Message);
             }
-            // Puedes agregar más tipos de excepciones según sea necesario
+            else if (exception is ValidationException validationEx)
+            {
+                statusCode = HttpStatusCode.BadRequest;
+                message = "Error de validación";
+                errors = validationEx.Errors.Select(e => e.ErrorMessage).ToList();
+            }
 
-            context.Response.StatusCode = (int)response.StatusCode;
-            var result = JsonSerializer.Serialize(response);
+            var response = ApiResponse<object>.FailureResponse(message, errors);
+
+            context.Response.StatusCode = (int)statusCode;
+            var result = JsonSerializer.Serialize(response, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
             await context.Response.WriteAsync(result);
         }
-    }
-
-    public class ErrorResponse
-    {
-        public HttpStatusCode StatusCode { get; set; }
-        public string Message { get; set; }
-        public string Details { get; set; }
     }
 }
