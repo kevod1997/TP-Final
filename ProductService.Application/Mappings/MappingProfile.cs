@@ -14,6 +14,7 @@ namespace ProductService.Application.Mappings
         public MappingProfile()
         {
             CreateMap<Product, ProductDto>();
+
             CreateMap<CreateProductDto, Product>()
                 .ConstructUsing(dto => new Product(dto.Name, dto.Description, dto.Price, dto.StockQuantity));
         }

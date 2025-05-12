@@ -39,9 +39,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerService.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Infrastructure", "OrderService.Infrastructure\OrderService.Infrastructure.csproj", "{48EE6D3D-F24D-4CB1-9BAB-0B4BAB33C60E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrabajoFinal.Common.EventBus", "TrabajoFinal.Common.EventBus\TrabajoFinal.Common.EventBus.csproj", "{650A9EE0-B7D7-4211-BC8A-16D92D8268B7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrabajoFinal.Common.SharedKernel", "TrabajoFinal.Common.SharedKernel\TrabajoFinal.Common.SharedKernel.csproj", "{E3E2C4D4-D690-4517-80D2-95CC634CF56F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrabajoFinal.Common.Shared", "TrabajoFinal.Common.SharedKernel\TrabajoFinal.Common.Shared.csproj", "{E3E2C4D4-D690-4517-80D2-95CC634CF56F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución", "Elementos de la solución", "{2DE2393D-491E-4038-8C30-56D8FC548527}"
 	ProjectSection(SolutionItems) = preProject
@@ -102,10 +100,6 @@ Global
 		{48EE6D3D-F24D-4CB1-9BAB-0B4BAB33C60E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48EE6D3D-F24D-4CB1-9BAB-0B4BAB33C60E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48EE6D3D-F24D-4CB1-9BAB-0B4BAB33C60E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{650A9EE0-B7D7-4211-BC8A-16D92D8268B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{650A9EE0-B7D7-4211-BC8A-16D92D8268B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{650A9EE0-B7D7-4211-BC8A-16D92D8268B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{650A9EE0-B7D7-4211-BC8A-16D92D8268B7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E3E2C4D4-D690-4517-80D2-95CC634CF56F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E3E2C4D4-D690-4517-80D2-95CC634CF56F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3E2C4D4-D690-4517-80D2-95CC634CF56F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -130,7 +124,6 @@ Global
 		{AC3EB715-09F5-402B-B65B-8F1D474F08BE} = {24FDF71A-A80D-49B6-9F2C-4C329C9360EB}
 		{CD444EBE-D8C9-4F84-B914-C409B5D3A1B4} = {24FDF71A-A80D-49B6-9F2C-4C329C9360EB}
 		{48EE6D3D-F24D-4CB1-9BAB-0B4BAB33C60E} = {0233D6D9-4551-48C8-BC39-C8A7276B5F1D}
-		{650A9EE0-B7D7-4211-BC8A-16D92D8268B7} = {360A2A11-58B0-4A3F-96DC-20D7BBC3051D}
 		{E3E2C4D4-D690-4517-80D2-95CC634CF56F} = {360A2A11-58B0-4A3F-96DC-20D7BBC3051D}
 	EndGlobalSection
 EndGlobal

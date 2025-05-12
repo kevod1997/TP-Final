@@ -12,17 +12,17 @@ namespace ProductService.Application.Commands
         public CreateProductCommandValidator()
         {
             RuleFor(p => p.ProductDto.Name)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .MaximumLength(100).WithMessage("{PropertyName} must not exceed 100 characters.");
+       .NotEmpty().WithMessage("{PropertyName} es requerido.")
+       .MaximumLength(100).WithMessage("{PropertyName} no debe exceder 100 caracteres.");
 
             RuleFor(p => p.ProductDto.Description)
-                .MaximumLength(500).WithMessage("{PropertyName} must not exceed 500 characters.");
+                .MaximumLength(500).WithMessage("{PropertyName} no debe exceder 500 caracteres.");
 
             RuleFor(p => p.ProductDto.Price)
-                .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} must be greater than or equal to 0.");
+                .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} debe ser mayor o igual a 0.");
 
             RuleFor(p => p.ProductDto.StockQuantity)
-                .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} must be greater than or equal to 0.");
+                .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} debe ser mayor o igual a 0.");
         }
     }
 }

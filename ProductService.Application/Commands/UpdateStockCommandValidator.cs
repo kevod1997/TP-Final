@@ -12,7 +12,7 @@ namespace ProductService.Application.Commands
         public UpdateStockCommandValidator()
         {
             RuleFor(p => p.StockDto.Id)
-                .GreaterThan(0).WithMessage("{PropertyName} must be greater than 0.");
+     .GreaterThan(0).WithMessage("{PropertyName} debe ser mayor a 0.");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProductService.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace ProductService.Domain.Entities
 {
     public class Product
     {
+        // Propiedades con acceso privado para setter para mantener la encapsulación
         public int Id { get; private set; }
         public string Name { get; private set; }
         public string Description { get; private set; }
@@ -23,13 +25,13 @@ namespace ProductService.Domain.Entities
         public Product(string name, string description, decimal price, int stockQuantity)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Product name cannot be empty", nameof(name));
+                throw new ArgumentException("El nombre del producto no puede estar vacio", nameof(name));
 
             if (price < 0)
-                throw new ArgumentException("Price cannot be negative", nameof(price));
+                throw new ArgumentException("El precio no puede ser negativo", nameof(price));
 
             if (stockQuantity < 0)
-                throw new ArgumentException("Stock quantity cannot be negative", nameof(stockQuantity));
+                throw new ArgumentException("El stock no puede ser negativo", nameof(stockQuantity));
 
             Name = name;
             Description = description ?? string.Empty;
@@ -42,10 +44,10 @@ namespace ProductService.Domain.Entities
         public void UpdateDetails(string name, string description, decimal price)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Product name cannot be empty", nameof(name));
+                throw new ArgumentException("El nombre del producto no puede estar vacio", nameof(name));
 
             if (price < 0)
-                throw new ArgumentException("Price cannot be negative", nameof(price));
+                throw new ArgumentException("El precio no puede ser negativo", nameof(price));
 
             Name = name;
             Description = description ?? string.Empty;
@@ -56,7 +58,7 @@ namespace ProductService.Domain.Entities
         public void UpdateStock(int quantity)
         {
             if (StockQuantity + quantity < 0)
-                throw new ArgumentException("Cannot reduce stock below zero", nameof(quantity));
+                throw new InsufficientStockException(Id, -quantity, StockQuantity);
 
             StockQuantity += quantity;
             UpdatedAt = DateTime.UtcNow;
