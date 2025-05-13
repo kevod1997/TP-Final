@@ -25,96 +25,112 @@ namespace ProductService.API.Controllers
             _logger = logger;
         }
 
+        // GET: api/Products
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
         {
-            _logger.LogInformation("Recibida solicitud para obtener todos los productos");
-
+            _logger.LogInformation("Solicitando listado de todos los productos");
             var query = new GetAllProductsQuery();
             var result = await _mediator.Send(query);
 
             return result.ToActionResult(this);
         }
 
+        // GET: api/Products/5
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ProductDto>> GetById(int id)
         {
+            _logger.LogInformation($"Solicitando producto con ID: {id}");
             var query = new GetProductByIdQuery { Id = id };
-            var product = await _mediator.Send(query);
+            var result = await _mediator.Send(query);
 
-            if (product == null)
-                return NotFound();
-
-            return Ok(product);
+            return result.ToActionResult(this);
         }
 
+        // POST: api/Products
         [HttpPost]
         [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ProductDto>> Create([FromBody] CreateProductDto productDto)
         {
+            _logger.LogInformation($"Creando nuevo producto: {productDto.Name}");
             var command = new CreateProductCommand { ProductDto = productDto };
             var result = await _mediator.Send(command);
 
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            if (result.IsSuccess)
+            {
+                // Para creación, usamos CreatedAtAction para devolver 201 Created
+                return CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value);
+            }
+
+            // Para los errores, usamos el ToActionResult estándar
+            return result.ToActionResult(this);
         }
 
+        // PUT: api/Products/5
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ProductDto>> Update(int id, [FromBody] UpdateProductDto productDto)
         {
+            _logger.LogInformation($"Actualizando producto con ID: {id}");
+
             if (id != productDto.Id)
-                return BadRequest();
+            {
+                _logger.LogWarning($"El ID en la ruta ({id}) no coincide con el ID en el cuerpo ({productDto.Id})");
+                return BadRequest(ErrorMessages.IdMismatch);
+            }
 
             var command = new UpdateProductCommand { ProductDto = productDto };
             var result = await _mediator.Send(command);
 
-            if (result == null)
-                return NotFound();
-
-            return Ok(result);
+            return result.ToActionResult(this);
         }
 
+        // PATCH: api/Products/5/stock
         [HttpPatch("{id}/stock")]
         [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<ProductDto>> UpdateStock(int id, [FromBody] UpdateStockDto stockDto)
         {
-            _logger.LogInformation($"Recibida solicitud para actualizar stock del producto {id}");
+            _logger.LogInformation($"Actualizando stock del producto con ID: {id}, cantidad: {stockDto.Quantity}");
 
-            // Validación básica de coherencia de datos
             if (id != stockDto.Id)
             {
-                _logger.LogWarning($"Discrepancia de IDs en la solicitud: ruta={id}, cuerpo={stockDto.Id}");
-                return BadRequest(new { message = ErrorMessages.IdMismatch });
+                _logger.LogWarning($"El ID en la ruta ({id}) no coincide con el ID en el cuerpo ({stockDto.Id})");
+                return BadRequest(ErrorMessages.IdMismatch);
             }
 
             var command = new UpdateStockCommand { StockDto = stockDto };
             var result = await _mediator.Send(command);
 
-            _logger.LogInformation($"Procesada solicitud para actualizar stock del producto {id}, éxito: {result.IsSuccess}");
-
             return result.ToActionResult(this);
         }
 
+        // DELETE: api/Products/5
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(int id)
         {
+            _logger.LogInformation($"Eliminando producto con ID: {id}");
+
             var command = new DeleteProductCommand { Id = id };
             var result = await _mediator.Send(command);
 
-            if (!result)
-                return NotFound();
-
-            return NoContent();
+            // Usamos el método específico para DELETE que devuelve NoContent para éxito
+            return result.ToActionResultWithNoContent(this);
         }
     }
 }
