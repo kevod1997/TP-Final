@@ -1,11 +1,23 @@
+using CustomerService.API.Middleware;
+using CustomerService.Application;
+using CustomerService.Infrastructure;
+using TrabajoFinal.Common.Shared.Logging;
+using TrabajoFinal.Common.Shared.Middleware;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configurar logging
+builder.Host.ConfigureStandardLogging("CustomerService");
+builder.Services.AddStandardLogging();
 
+// Configurar servicios
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Registrar capas
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -17,6 +29,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Añadir middleware personalizado
+app.UseExceptionHandling();
+app.UseRequestResponseLogging();
+app.UseResultTransformation();
 
 app.UseAuthorization();
 
