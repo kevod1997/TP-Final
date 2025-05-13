@@ -3,38 +3,28 @@ using ProductService.Infrastructure;
 using System.Text.Json.Serialization;
 using TrabajoFinal.Common.Shared.Logging;
 using ProductService.Application;
+using TrabajoFinal.Common.Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar Serilog usando nuestra extensión compartida
+// Configurar Serilog
 builder.Host.ConfigureStandardLogging("ProductService");
 
-// Agregar servicios de logging al contenedor DI
-builder.Services.AddStandardLogging();
-
-// Agregar controladores con opciones de JSON
-builder.Services.AddControllers()
-    .AddJsonOptions(opts =>
-    {
-        opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
-
-// Configurar Swagger/OpenAPI
+// Agregar servicios al contenedor
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new() { Title = "Product Service API", Version = "v1" });
-});
+builder.Services.AddSwaggerGen();
 
-// Registrar servicios de aplicación
+// Agregar capas de la aplicación
 builder.Services.AddApplication();
-
-// Registrar servicios de infraestructura
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Agregar servicios comunes
+builder.Services.AddStandardLogging();
 
 var app = builder.Build();
 
-// Configurar el pipeline de solicitudes HTTP
+// Configurar el pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -43,8 +33,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Agregar middleware personalizado
 app.UseExceptionHandling();
 app.UseRequestResponseLogging();
+app.UseResultTransformation(); // Nuevo middleware para transformar Result
 
 app.UseAuthorization();
 

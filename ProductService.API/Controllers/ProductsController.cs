@@ -5,6 +5,10 @@ using ProductService.Application.DTOs;
 using ProductService.Application.Queries;
 using FluentValidation;
 using ProductService.Domain.Exceptions;
+using TrabajoFinal.Common.Shared.Logging;
+using TrabajoFinal.Common.Shared.Constants;
+using TrabajoFinal.Common.Shared.Results;
+
 
 namespace ProductService.API.Controllers
 {
@@ -13,19 +17,24 @@ namespace ProductService.API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILoggerService _logger;
 
-        public ProductsController(IMediator mediator)
+        public ProductsController(IMediator mediator, ILoggerService logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
         {
+            _logger.LogInformation("Recibida solicitud para obtener todos los productos");
+
             var query = new GetAllProductsQuery();
-            var products = await _mediator.Send(query);
-            return Ok(products);
+            var result = await _mediator.Send(query);
+
+            return result.ToActionResult(this);
         }
 
         [HttpGet("{id}")]
@@ -77,29 +86,21 @@ namespace ProductService.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ProductDto>> UpdateStock(int id, [FromBody] UpdateStockDto stockDto)
         {
+            _logger.LogInformation($"Recibida solicitud para actualizar stock del producto {id}");
+
+            // Validación básica de coherencia de datos
             if (id != stockDto.Id)
-                return BadRequest();
-
-            try
             {
-                var command = new UpdateStockCommand { StockDto = stockDto };
-                var result = await _mediator.Send(command);
-
-                if (result == null)
-                    return NotFound();
-
-                return Ok(result);
+                _logger.LogWarning($"Discrepancia de IDs en la solicitud: ruta={id}, cuerpo={stockDto.Id}");
+                return BadRequest(new { message = ErrorMessages.IdMismatch });
             }
-            catch (InsufficientStockException ex)
-            {
-                return BadRequest(new
-                {
-                    message = ex.Message,
-                    productId = ex.ProductId,
-                    requestedQuantity = ex.RequestedQuantity,
-                    availableQuantity = ex.AvailableQuantity
-                });
-            }
+
+            var command = new UpdateStockCommand { StockDto = stockDto };
+            var result = await _mediator.Send(command);
+
+            _logger.LogInformation($"Procesada solicitud para actualizar stock del producto {id}, éxito: {result.IsSuccess}");
+
+            return result.ToActionResult(this);
         }
 
         [HttpDelete("{id}")]
