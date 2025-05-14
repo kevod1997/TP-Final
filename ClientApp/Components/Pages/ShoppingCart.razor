@@ -1,0 +1,182 @@
+﻿@page "/cart"
+@using ClientApp.Models
+@using ClientApp.Services
+@implements IDisposable
+@inject CartService CartService
+@inject ICustomerService CustomerService
+@inject IOrderService OrderService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Carrito de Compras</PageTitle>
+
+<div class="container">
+    <h3 class="my-4">Mi Carrito de Compras</h3>
+
+    @if (CartService.Items.Count == 0)
+    {
+        <div class="alert alert-info">
+            Su carrito está vacío.
+            <a href="/products" class="alert-link">Ver productos</a>
+        </div>
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Productos seleccionados</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in CartService.Items)
+                            {
+                                <tr>
+                                    <td>@item.Product.Name</td>
+                                    <td>$@item.Product.Price.ToString("F2")</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <input type="number" class="form-control form-control-sm" style="width: 80px;"
+                                                   min="1" max="@item.Product.StockQuantity" value="@item.Quantity"
+                                                   @onchange="@(e => UpdateQuantity(item.Product.Id, int.Parse(e.Value?.ToString() ?? "1")))" />
+                                        </div>
+                                    </td>
+                                    <td>$@item.Subtotal.ToString("F2")</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" @onclick="() => CartService.RemoveItem(item.Product.Id)">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td><strong>$@CartService.GetTotal().ToString("F2")</strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Finalizar compra</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Seleccione un cliente:</label>
+                    <select class="form-select" @bind="selectedCustomerId">
+                        <option value="0">-- Seleccione un cliente --</option>
+                        @if (customers != null)
+                        {
+                            @foreach (var customer in customers)
+                            {
+                                <option value="@customer.Id">@customer.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <button class="btn btn-success" @onclick="CreateOrder" disabled="@(selectedCustomerId == 0 || isProcessing)">
+                    @if (isProcessing)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span>
+                        <span>Procesando...</span>
+                    }
+                    else
+                    {
+                        <span>Finalizar Compra</span>
+                    }
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<CustomerDto>? customers;
+    private int selectedCustomerId;
+    private bool isProcessing = false;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CartService.OnChange += StateHasChanged;
+        await LoadCustomers();
+    }
+
+    private async Task LoadCustomers()
+    {
+        customers = await CustomerService.GetAllCustomersAsync();
+    }
+
+    private void UpdateQuantity(int productId, int quantity)
+    {
+        CartService.UpdateQuantity(productId, quantity);
+    }
+
+    private async Task CreateOrder()
+    {
+        if (selectedCustomerId <= 0 || CartService.Items.Count == 0) return;
+
+        isProcessing = true;
+        errorMessage = null;
+
+        try
+        {
+            var customer = customers?.FirstOrDefault(c => c.Id == selectedCustomerId);
+            if (customer == null) return;
+
+            var orderDto = new CreateOrderDto
+                {
+                    CustomerId = customer.Id,
+                    CustomerName = customer.Name,
+                    Items = CartService.Items.Select(i => new CreateOrderItemDto
+                    {
+                        ProductId = i.Product.Id,
+                        ProductName = i.Product.Name,
+                        UnitPrice = i.Product.Price,
+                        Quantity = i.Quantity
+                    }).ToList()
+                };
+
+            var result = await OrderService.CreateOrderAsync(orderDto);
+
+            if (result != null)
+            {
+                CartService.Clear();
+                NavigationManager.NavigateTo($"/order-details/{result.Id}");
+            }
+            else
+            {
+                errorMessage = "No se pudo crear la orden. Por favor, inténtelo de nuevo.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        CartService.OnChange -= StateHasChanged;
+    }
+}

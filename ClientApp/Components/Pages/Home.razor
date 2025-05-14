@@ -1,0 +1,65 @@
+﻿@page "/"
+
+<PageTitle>Inicio</PageTitle>
+
+<div class="container">
+    <div class="py-5 text-center">
+        <h1 class="display-5 fw-bold">Bienvenido a nuestra Tienda Online</h1>
+        <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4">Explora nuestros productos, registra tu cuenta y realiza pedidos de forma rápida y sencilla.</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a href="/products" class="btn btn-primary btn-lg px-4 gap-3">Ver Productos</a>
+                <a href="/register" class="btn btn-outline-secondary btn-lg px-4">Registrarse</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 py-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-box-seam display-1 text-primary mb-3"></i>
+                    <h3 class="card-title">Explora Productos</h3>
+                    <p class="card-text">Descubre nuestra amplia selección de productos de alta calidad.</p>
+                    <a href="/products" class="btn btn-primary mt-2">Ver Catálogo</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-plus display-1 text-success mb-3"></i>
+                    <h3 class="card-title">Crea tu Cuenta</h3>
+                    <p class="card-text">Regístrate para disfrutar de una mejor experiencia de compra.</p>
+                    <a href="/register" class="btn btn-success mt-2">Registrarme</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-cart-check display-1 text-info mb-3"></i>
+                    <h3 class="card-title">Compra Fácil</h3>
+                    <p class="card-text">Proceso de compra rápido y seguro con seguimiento de pedidos.</p>
+                    <a href="/cart" class="btn btn-info mt-2">Ver Carrito</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Historial de Órdenes</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">¿Ya eres cliente? Selecciona tu cuenta para ver el historial de tus órdenes:</p>
+                    <CustomerSelector />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

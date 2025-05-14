@@ -1,0 +1,36 @@
+﻿@using ClientApp.Models
+@using ClientApp.Services
+@inject ICustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<div class="mb-3">
+    <select class="form-select" @bind="selectedCustomerId">
+        <option value="0">-- Seleccione un cliente --</option>
+        @if (customers != null)
+        {
+            @foreach (var customer in customers)
+            {
+                <option value="@customer.Id">@customer.Name</option>
+            }
+        }
+    </select>
+
+</div>
+
+@code {
+    private List<CustomerDto>? customers;
+    private int selectedCustomerId;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        customers = await CustomerService.GetAllCustomersAsync();
+    }
+    
+    private void CustomerSelected()
+    {
+        if (selectedCustomerId > 0)
+        {
+            NavigationManager.NavigateTo($"/customer-orders/{selectedCustomerId}");
+        }
+    }
+}

@@ -1,0 +1,112 @@
+﻿@page "/register"
+@using ClientApp.Models
+@using ClientApp.Services
+@using System.ComponentModel.DataAnnotations
+@inject ICustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Registro de Cliente</PageTitle>
+
+<div class="container">
+    <h3 class="my-4">Registro de Cliente</h3>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <EditForm Model="@customer" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger mb-3" />
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nombre:</label>
+                            <InputText id="name" @bind-Value="customer.Name" class="form-control" />
+                            <ValidationMessage For="@(() => customer.Name)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email:</label>
+                            <InputText id="email" @bind-Value="customer.Email" class="form-control" />
+                            <ValidationMessage For="@(() => customer.Email)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Dirección:</label>
+                            <InputText id="address" @bind-Value="customer.Address" class="form-control" />
+                            <ValidationMessage For="@(() => customer.Address)" class="text-danger" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span>
+                                <span>Procesando...</span>
+                            }
+                            else
+                            {
+                                <span>Registrar</span>
+                            }
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private CustomerModel customer = new();
+    private bool isSubmitting = false;
+    private string? errorMessage;
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+
+        try
+        {
+            var createCustomerDto = new CreateCustomerDto
+                {
+                    Name = customer.Name,
+                    Email = customer.Email,
+                    Address = customer.Address
+                };
+
+            var result = await CustomerService.CreateCustomerAsync(createCustomerDto);
+
+            if (result != null)
+            {
+                NavigationManager.NavigateTo("/customers-list");
+            }
+            else
+            {
+                errorMessage = "No se pudo crear el cliente. Por favor, inténtelo de nuevo.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private class CustomerModel
+    {
+        [Required(ErrorMessage = "El nombre es requerido")]
+        [StringLength(100, ErrorMessage = "El nombre no debe exceder los 100 caracteres")]
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El email es requerido")]
+        [EmailAddress(ErrorMessage = "El formato del email no es válido")]
+        [StringLength(150, ErrorMessage = "El email no debe exceder los 150 caracteres")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La dirección es requerida")]
+        [StringLength(200, ErrorMessage = "La dirección no debe exceder los 200 caracteres")]
+        public string Address { get; set; } = string.Empty;
+    }
+}

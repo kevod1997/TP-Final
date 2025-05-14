@@ -1,0 +1,45 @@
+﻿@inherits LayoutComponentBase
+@using ClientApp.Services
+@implements IDisposable
+@inject CartService CartService
+@inject NavigationManager NavigationManager
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <div class="cart-indicator" @onclick="GoToCart">
+                <i class="bi bi-cart"></i>
+                @if (CartService.Items.Count > 0)
+                {
+                    <span class="badge bg-danger">@CartService.Items.Count</span>
+                }
+            </div>
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        CartService.OnChange += StateHasChanged;
+    }
+
+    private void GoToCart()
+    {
+        NavigationManager.NavigateTo("/cart");
+    }
+
+    public void Dispose()
+    {
+        CartService.OnChange -= StateHasChanged;
+    }
+}

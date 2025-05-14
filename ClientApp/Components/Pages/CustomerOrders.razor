@@ -1,0 +1,132 @@
+﻿@page "/customer-orders/{CustomerId:int}"
+@using ClientApp.Models
+@using ClientApp.Services
+@inject IOrderService OrderService
+@inject ICustomerService CustomerService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Órdenes del Cliente</PageTitle>
+
+<div class="container">
+    <div class="my-4">
+        <button class="btn btn-secondary mb-3" @onclick="GoBack">
+            <i class="bi bi-arrow-left"></i> Volver
+        </button>
+
+        @if (customer == null)
+        {
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Información del Cliente</h5>
+                </div>
+                <div class="card-body">
+                    <h5>@customer.Name</h5>
+                    <p class="mb-1"><strong>Email:</strong> @customer.Email</p>
+                    <p class="mb-1"><strong>Dirección:</strong> @customer.Address</p>
+                    <p><strong>Fecha de registro:</strong> @customer.RegistrationDate.ToShortDateString()</p>
+                </div>
+            </div>
+        }
+
+        <h4>Historial de Órdenes</h4>
+
+        @if (orders == null)
+        {
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        }
+        else if (!orders.Any())
+        {
+            <div class="alert alert-info">Este cliente no tiene órdenes registradas.</div>
+        }
+        else
+        {
+            <div class="accordion" id="ordersAccordion">
+                @foreach (var order in orders)
+                {
+                    <div class="accordion-item mb-3">
+                        <h2 class="accordion-header" id="heading@(order.Id)">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse@(order.Id)" aria-expanded="false"
+                                    aria-controls="collapse@(order.Id)">
+                                <div class="d-flex justify-content-between w-100">
+                                    <span>Orden #@order.Id - @order.OrderDate.ToShortDateString()</span>
+                                    <span class="badge bg-success">$@order.TotalAmount.ToString("F2")</span>
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="collapse@(order.Id)" class="accordion-collapse collapse"
+                             aria-labelledby="heading@(order.Id)" data-bs-parent="#ordersAccordion">
+                            <div class="accordion-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th>Precio</th>
+                                                <th>Cantidad</th>
+                                                <th>Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in order.Items)
+                                            {
+                                                <tr>
+                                                    <td>@item.ProductName</td>
+                                                    <td>$@item.UnitPrice.ToString("F2")</td>
+                                                    <td>@item.Quantity</td>
+                                                    <td>$@item.Subtotal.ToString("F2")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                                <td><strong>$@order.TotalAmount.ToString("F2")</strong></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int CustomerId { get; set; }
+
+    private CustomerDto? customer;
+    private List<OrderDto>? orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        customer = await CustomerService.GetCustomerByIdAsync(CustomerId);
+        orders = await OrderService.GetOrdersByCustomerIdAsync(CustomerId);
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/customers-list");
+    }
+}
