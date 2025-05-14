@@ -22,6 +22,17 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Agregar servicios comunes
 builder.Services.AddStandardLogging();
 
+// Configuración CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configurar el pipeline HTTP
@@ -32,6 +43,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Habilitar CORS
+app.UseCors("AllowAll");
 
 // Agregar middleware personalizado
 app.UseExceptionHandling();

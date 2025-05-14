@@ -42,6 +42,7 @@ namespace TrabajoFinal.Common.Shared.Constants
             public const string AddressRequired = "La dirección del cliente es obligatoria.";
             public const string EmailRequired = "El correo electrónico del cliente es obligatorio.";
             public const string EmailAlreadyExists = "Ya existe un cliente con este correo electrónico.";
+
         }
 
         // Mensajes específicos de órdenes
@@ -49,6 +50,7 @@ namespace TrabajoFinal.Common.Shared.Constants
         {
             public const string NotFound = "No se encontró la orden con el ID especificado.";
             public const string CustomerNotFound = "No se encontró el cliente para esta orden.";
+            public const string CustomerRequired = "El cliente es obligatorio para crear una orden.";
             public const string ProductNotFound = "Uno o más productos de la orden no fueron encontrados.";
             public const string EmptyOrder = "La orden debe contener al menos un producto.";
             public const string InsufficientStock = "No hay suficiente stock para uno o más productos de la orden.";

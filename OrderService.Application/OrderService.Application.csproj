@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OrderService.Domain\OrderService.Domain.csproj" />
+    <ProjectReference Include="..\TrabajoFinal.Common.SharedKernel\TrabajoFinal.Common.Shared.csproj" />
   </ItemGroup>
 
 </Project>
